@@ -15,13 +15,11 @@ import uuid
 from typing import Union, TYPE_CHECKING
 import os
 from werkzeug.utils import secure_filename
-from sqlalchemy import select
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
-from user.models import user_table, get_user_by_username
-from relationship.models import relationship_table, existing_relationship
+# from user.models import user_table, get_user_by_username
 from user.decorators import login_required
 from settings import UPLOAD_FOLDER
 from utilities.imaging import thumbnail_process

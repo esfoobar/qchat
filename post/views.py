@@ -13,20 +13,19 @@ from quart import (
 )
 import uuid
 from typing import Union, Tuple, TYPE_CHECKING
-from sqlalchemy import select
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
-from post.models import (
-    post_table,
-    like_table,
-    feed_table,
-    ActionType,
-    get_post_feed_followers,
-    get_post_id_from_uid,
-)
-from relationship.models import get_user_followers
+# from post.models import (
+#     post_table,
+#     like_table,
+#     feed_table,
+#     ActionType,
+#     get_post_feed_followers,
+#     get_post_id_from_uid,
+# )
+# from relationship.models import get_user_followers
 from user.decorators import login_required
 
 post_app = Blueprint("post_app", __name__)

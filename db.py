@@ -1,15 +1,11 @@
-from databases import Database
+from motor.motor_asyncio import AsyncIOMotorClient
 from quart import current_app
-import sqlalchemy
-
-metadata = sqlalchemy.MetaData()
 
 
 async def db_connection():
-    database_url = f"mysql://{current_app.config['DB_USERNAME']}:"
-    database_url += f"{current_app.config['DB_PASSWORD']}@"
-    database_url += f"{current_app.config['DB_HOST']}/"
-    database_url += f"{current_app.config['DATABASE_NAME']}"
-    database = Database(database_url, min_size=5, max_size=20)
-
+    mongodb_db = current_app.config["MONGODB_DB"]
+    mongodb_host = current_app.config["MONGODB_HOST"]
+    mongodb_port = int(current_app.config["MONGODB_PORT"])
+    client = AsyncIOMotorClient(f"mongodb://{mongodb_host}:{mongodb_port}")
+    database = client[mongodb_db]
     return database

@@ -5,34 +5,26 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./:/quartfeed_app
+      - ./:/qchat_app
     links:
-      - db:mysql
-    container_name: quartfeed_web_1
+      - mongodb
+    container_name: qchat_web_1
     depends_on:
-      - db
+      - mongodb
     stdin_open: true
     tty: true
     environment:
       PORT: 5000
       SECRET_KEY: "you-will-never-guess"
       DEBUG: 1 # can't pass True here, but 1 works
-      MYSQL_ROOT_PASSWORD: rootpass
-      DB_USERNAME: quartfeed_user
-      DB_PASSWORD: quartfeed_password
-      DB_HOST: mysql
-      DATABASE_NAME: quartfeed
-      UPLOAD_FOLDER: "/quartfeed_app/static/uploads"
-      IMAGES_FOLDER: "/quartfeed_app/static/images"
+      MONGODB_DB: "qchat"
+      MONGODB_HOST: "mongodb"
+      MONGODB_PORT: 27017
+      UPLOAD_FOLDER: "/qchat_app/static/uploads"
+      IMAGES_FOLDER: "/qchat_app/static/images"
       IMAGES_URL: "http://localhost:5000/static/images"
-  db:
-    image: mysql:5.7
-    restart: always
-    container_name: quartfeed_db_1
+  mongodb:
+    image: library/mongo:4.2
+    container_name: qchat_mongodb_1
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_USER: quartfeed_user
-      MYSQL_PASSWORD: quartfeed_password
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: quartfeed
+      - 27017:27017
