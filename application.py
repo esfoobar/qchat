@@ -30,6 +30,7 @@ def create_app(**config_overrides):
 
     @app.after_serving
     async def close_db_conn():
-        await app.dbc.disconnect()
+        # await app.dbc.disconnect()
+        pass
 
     return app

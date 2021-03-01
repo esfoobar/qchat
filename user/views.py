@@ -19,7 +19,7 @@ from werkzeug.utils import secure_filename
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
-# from user.models import user_table, get_user_by_username
+from user.models import User
 from user.decorators import login_required
 from settings import UPLOAD_FOLDER
 from utilities.imaging import thumbnail_process
@@ -55,8 +55,8 @@ async def register() -> Union[str, "Response"]:
 
         # check if the user exists
         if not error:
-            user = await get_user_by_username(conn, username)
-            if user and user["id"]:
+            user = await User().get_user_by_username(username=username)
+            if user and user.uid:
                 error = "Username already exists"
 
         # register the user
@@ -65,8 +65,13 @@ async def register() -> Union[str, "Response"]:
                 del session["csrf_token"]
 
             hash: str = pbkdf2_sha256.hash(password)
-            user_insert = user_table.insert().values(username=username, password=hash)
-            await conn.execute(query=user_insert)
+            user_document = {
+                "uid": str(uuid.uuid4()),
+                "username": username,
+                "password": hash,
+                "image": "",
+            }
+            result = await current_app.dbc.user.insert_one(user_document)
             await flash("You have been registered, please login")
             return redirect(url_for(".login"))
         else:
@@ -106,6 +111,7 @@ async def login() -> Union[str, "Response"]:
         conn = current_app.dbc
 
         # check if the user exists
+        breakpoint()
         user = await get_user_by_username(conn, form.get("username"))
         if not user:
             error = "User not found"
