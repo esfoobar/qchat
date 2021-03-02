@@ -51,8 +51,6 @@ async def register() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        conn = current_app.dbc
-
         # check if the user exists
         if not error:
             user = await User().get_user_by_username(username=username)
@@ -71,7 +69,7 @@ async def register() -> Union[str, "Response"]:
                 "password": hash,
                 "image": "",
             }
-            result = await current_app.dbc.user.insert_one(user_document)
+            await current_app.dbc.user.insert_one(user_document)
             await flash("You have been registered, please login")
             return redirect(url_for(".login"))
         else:
@@ -108,15 +106,12 @@ async def login() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        conn = current_app.dbc
-
         # check if the user exists
-        breakpoint()
-        user = await get_user_by_username(conn, form.get("username"))
+        user = await User().get_user_by_username(username=username)
         if not user:
             error = "User not found"
         # check the password
-        elif not pbkdf2_sha256.verify(password, user.get("password")):
+        elif not pbkdf2_sha256.verify(password, user.password):
             error = "User not found"
 
         if not error:
@@ -124,8 +119,8 @@ async def login() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            session["user_id"] = user.get("id")
-            session["username"] = user.get("username")
+            session["user_uid"] = user.uid
+            session["username"] = user.username
 
             if "next" in session:
                 next = session.get("next")
@@ -144,7 +139,7 @@ async def login() -> Union[str, "Response"]:
 
 @user_app.route("/logout", methods=["GET"])
 async def logout() -> "Response":
-    del session["user_id"]
+    del session["user_uid"]
     del session["username"]
     return redirect(url_for(".login"))
 
@@ -156,8 +151,7 @@ async def profile_edit() -> Union[str, "Response"]:
     csrf_token: uuid.UUID = uuid.uuid4()
 
     # grab the user's details
-    conn = current_app.dbc
-    profile_user = await get_user_by_username(conn, session["username"])
+    profile_user = await User().get_user_by_username(username=session["username"])
 
     if request.method == "GET":
         session["csrf_token"] = str(csrf_token)
@@ -177,8 +171,9 @@ async def profile_edit() -> Union[str, "Response"]:
 
         # check if the username exists if username changed
         if not error and session["username"] != form_username:
-            user = await get_user_by_username(conn, form_username)
-            if user and user["id"]:
+            user = await User().get_user_by_username(form_username)
+
+            if user and user.id:
                 error = "Username already exists"
 
         # image upload (skip if testing)
@@ -194,9 +189,7 @@ async def profile_edit() -> Union[str, "Response"]:
                 )
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 profile_image.save(file_path)
-                image_uid = thumbnail_process(
-                    file_path, "user", str(profile_user["id"])
-                )
+                image_uid = thumbnail_process(file_path, "user", str(profile_user.uid))
                 changed_image = True
 
         # edit the profile
@@ -204,28 +197,26 @@ async def profile_edit() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            profile_user["username"] = form_username
+            profile_user.username = form_username
 
             if changed_image:
-                profile_user["image"] = image_uid
+                profile_user.image = image_uid
 
-            # delete the profile image_urls before updating
-            del profile_user["image_url_raw"]
-            del profile_user["image_url_xlg"]
-            del profile_user["image_url_lg"]
-            del profile_user["image_url_sm"]
-
-            user_update = user_table.update(
-                user_table.c.id == profile_user["id"]
-            ).values(profile_user)
-            await conn.execute(query=user_update)
+            # update the user
+            user_document = {
+                "username": profile_user.username,
+                "image": profile_user.image,
+            }
+            await current_app.dbc.user.update_one(
+                {"uid": session["user_uid"]}, {"$set": user_document}
+            )
 
             # update session with new username
             session["username"] = form_username
 
             # update session
             await flash("Profile edited")
-            return redirect(url_for(".profile", username=profile_user["username"]))
+            return redirect(url_for(".profile", username=profile_user.username))
         else:
             session["csrf_token"] = str(csrf_token)
 
@@ -240,10 +231,8 @@ async def profile_edit() -> Union[str, "Response"]:
 @user_app.route("/user/<username>")
 @login_required
 async def profile(username) -> Union[str, "Response"]:
-    conn = current_app.dbc
-
     # fetch the user
-    user = await get_user_by_username(conn, username)
+    user = await User().get_user_by_username(username)
 
     # user not found
     if not user:
@@ -252,13 +241,14 @@ async def profile(username) -> Union[str, "Response"]:
     relationship: str = ""
 
     # see if we're looking at our own profile
-    if user["id"] == session.get("user_id"):
-        relationship = "self"
-    else:
-        if await existing_relationship(conn, session.get("user_id"), user["id"]):
-            relationship = "following"
-        else:
-            relationship = "not_following"
+    # if user["id"] == session.get("user_id"):
+    #     relationship = "self"
+    # else:
+    #     if await existing_relationship(conn, session.get("user_id"), user["id"]):
+    #         relationship = "following"
+    #     else:
+    #         relationship = "not_following"
+    relationship = "self"
 
     return await render_template(
         "user/profile.html", user=user, relationship=relationship

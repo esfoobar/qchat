@@ -9,6 +9,7 @@ class User:
         self.uid = ""
         self.username = username
         self.password = password
+        self.image = ""
         self.images: dict = {}
 
     @classmethod
@@ -20,9 +21,10 @@ class User:
             cls.uid = str(user_document["uid"])
             cls.username = user_document["username"]
             cls.password = user_document["password"]
+            cls.image = user_document["image"]
             cls.images = {}
 
-            image_dict = cls._image_url_from_image_ts(cls.uid, user_document["image"])
+            image_dict = cls._image_url_from_image_ts(cls.uid, cls.image)
             cls.images["image_url_raw"] = image_dict["image_url_raw"]
             cls.images["image_url_xlg"] = image_dict["image_url_xlg"]
             cls.images["image_url_lg"] = image_dict["image_url_lg"]
