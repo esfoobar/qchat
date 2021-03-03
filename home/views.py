@@ -36,7 +36,4 @@ home_app = Blueprint("home_app", __name__)
 @home_app.route("/", methods=["GET"])
 @login_required
 async def init() -> str:
-    document = {"key": "value"}
-    result = await current_app.dbc.test_collection.insert_one(document)
-    print("result %s" % repr(result.inserted_id))
-    return "Hello World!"
+    return "Hello @" + session["username"]

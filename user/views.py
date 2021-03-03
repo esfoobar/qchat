@@ -173,7 +173,7 @@ async def profile_edit() -> Union[str, "Response"]:
         if not error and session["username"] != form_username:
             user = await User().get_user_by_username(form_username)
 
-            if user and user.id:
+            if user and user.uid:
                 error = "Username already exists"
 
         # image upload (skip if testing)
