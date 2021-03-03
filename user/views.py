@@ -238,30 +238,15 @@ async def profile(username) -> Union[str, "Response"]:
     if not user:
         abort(404)
 
-    relationship: str = ""
-
-    # see if we're looking at our own profile
-    # if user["id"] == session.get("user_id"):
-    #     relationship = "self"
-    # else:
-    #     if await existing_relationship(conn, session.get("user_id"), user["id"]):
-    #         relationship = "following"
-    #     else:
-    #         relationship = "not_following"
-    relationship = "self"
-
-    return await render_template(
-        "user/profile.html", user=user, relationship=relationship
-    )
+    return await render_template("user/profile.html", user=user)
 
 
 @user_app.route("/user/list")
 @login_required
 async def user_list() -> Union[str, "Response"]:
-    conn = current_app.dbc
-    username_query = select([user_table.c.username])
+    user_collection = current_app.dbc.user
 
-    async for row in conn.iterate(query=username_query):
-        print(row)
+    async for user in user_collection.find({}):
+        print(user)
 
     return "user list"
