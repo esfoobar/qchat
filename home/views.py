@@ -1,19 +1,10 @@
-from quart import (
-    Blueprint,
-    render_template,
-    session,
-    current_app,
-    websocket,
-)
-from typing import Union, TYPE_CHECKING
+from typing import NoReturn
+from quart import Blueprint, render_template, session, current_app, websocket, request
 import uuid
 import asyncio
+import time
 
 from user.decorators import login_required
-
-
-if TYPE_CHECKING:
-    from quart.wrappers.response import Response
 
 
 home_app = Blueprint("home_app", __name__)
@@ -26,30 +17,44 @@ async def init() -> str:
 
 
 @home_app.route("/")
-async def index():
-    return await render_template("index.html")
+@login_required
+async def index() -> str:
+    dbc = current_app.dbc
+    cursor_id = 0
+    chat_messages = []
+    async for message in dbc.chat.find({}).sort("timestamp", -1).limit(10):
+        chat_messages.append(message)
+        cursor_id = message["timestamp"]
+    return await render_template("index.html", cursor_id=cursor_id)
 
 
-async def sending(dbc, session):
+async def sending(dbc, session, cursor_id):
+    print("initial cursor_id:", cursor_id)
     while True:
-        await asyncio.sleep(10)
-        message = await dbc.chat.find_one({})
-        print(message, session["username"])
+        await asyncio.sleep(1)
+        message = await dbc.chat.find_one({"timestamp": {"$gt": cursor_id}})
         if message:
             await websocket.send(f"echo {message['body']}")
-            await dbc.chat.delete_one({"uid": message["uid"]})
+            cursor_id = message["timestamp"]
 
 
 async def receiving(dbc, session):
     while True:
         data = await websocket.receive()
-        message_document = {"body": data, "uid": str(uuid.uuid4())}
+        message_document = {
+            "uid": str(uuid.uuid4()),
+            "username": session.get("username"),
+            "body": data,
+            "timestamp": int(time.time()),
+        }
         await dbc.chat.insert_one(message_document)
 
 
 @home_app.websocket("/ws")
+@login_required
 async def ws():
     dbc = current_app.dbc
-    producer = asyncio.create_task(sending(dbc, session))
+    cursor_id = int(websocket.args.get("cursor_id"))
+    producer = asyncio.create_task(sending(dbc, session, cursor_id))
     consumer = asyncio.create_task(receiving(dbc, session))
     await asyncio.gather(producer, consumer)
