@@ -22,7 +22,9 @@ async def index() -> str:
     dbc = current_app.dbc
     cursor_id = 0
     chat_messages = []
-    async for message in dbc.chat.find({}).sort("timestamp", 1).limit(10):
+    chat_count = await dbc.chat.count_documents({})
+    print("chat_count", chat_count)
+    async for message in dbc.chat.find({}).skip(chat_count - 10):
         chat_messages.append(message)
         cursor_id = message["timestamp"]
     return await render_template(
@@ -31,7 +33,6 @@ async def index() -> str:
 
 
 async def sending(dbc, session, cursor_id):
-    print("initial cursor_id:", cursor_id)
     while True:
         message = await dbc.chat.find_one({"timestamp": {"$gt": cursor_id}})
         if message:
@@ -57,7 +58,6 @@ async def receiving(dbc, session):
 async def ws():
     dbc = current_app.dbc
     cursor_id = int(websocket.args.get("cursor_id"))
-    print("initial cursor_id:", cursor_id)
     producer = asyncio.create_task(sending(dbc, session, cursor_id))
     consumer = asyncio.create_task(receiving(dbc, session))
     await asyncio.gather(producer, consumer)
