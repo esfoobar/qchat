@@ -1,0 +1,35 @@
+html,
+body {
+  height: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+}
+
+#chat-container {
+  display: flex;
+  flex-grow: 1;
+  min-width: 100%;
+  height: 80vh;
+  border-radius: 10px;
+  background: #eef;
+}
+
+#side-bar {
+  background: #0048aa;
+  border-radius: 10px 0 0 10px;
+  flex-basis: 275px;
+}
+
+#chat-window {
+  background: #999;
+  border-radius: 0 10px 10px 0;
+  flex-grow: 1;
+}

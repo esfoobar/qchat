@@ -1,23 +1,44 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Websocket example</title>
-  </head>
-  <body>
-    <input type="text" id="message">
-    <button>Send</button>
-    <ul id="chat-messages">
-      {% for message in chat_messages %}
-        <li>@{{ message.username }} {{ message.body }}</li>
-      {% endfor %}
-    </ul>
-    <script type="text/javascript">
-      qChat = {}
-      qChat.cursorId = {{ cursor_id }}
-    </script>
-    <script
-      type="text/javascript"
-      src="{{ url_for("static", filename="js/ws.js") }}"
-    ></script>
-  </body>
-</html>
+{% extends "base.html" %} 
+
+{% block title %}QChat{% endblock %} 
+{% block header %}
+<link rel="stylesheet" href="{{ url_for("static", filename="css/qchat.css") }}">
+{% endblock %} 
+
+{% block content %} 
+  
+{% include "navbar.html" %}
+
+
+<div id="chat-container">
+  <div id="side-bar">
+  </div>
+  <div id="chat-window">
+      <ul id="chat-messages">
+        {% for message in chat_messages %}
+          <li>@{{ message.username }} {{ message.body }}</li>
+        {% endfor %}
+      </ul>
+
+
+      <form role="form">
+
+        <div class="form-group">
+          <input name="message" type="text" class="form-control" id="message" placeholder="What's happening?">
+          <button type="submit" class="btn btn-default">Send</button>
+        </div>
+
+      </form>
+  
+ </div>
+
+ <script type="text/javascript">
+  qChat = {}
+  qChat.cursorId = {{ cursor_id }}
+</script>
+<script
+  type="text/javascript"
+  src="{{ url_for("static", filename="js/ws.js") }}"
+></script> 
+  {% block footer %}{% endblock %}
+  {% endblock %}
