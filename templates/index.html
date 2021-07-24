@@ -13,23 +13,25 @@
 <div id="chat-container">
   <div id="side-bar">
   </div>
-  <div id="chat-window">
+  <div id="chat-bar">
+    <div id="chat-window">
       <ul id="chat-messages">
         {% for message in chat_messages %}
           <li>@{{ message.username }} {{ message.body }}</li>
         {% endfor %}
       </ul>
 
-
-      <form role="form">
+    </div>
+    <div id="chat-input">
+      <form role="form" class="form-inline" onsubmit="event.preventDefault();">
 
         <div class="form-group">
           <input name="message" type="text" class="form-control" id="message" placeholder="What's happening?">
-          <button type="submit" class="btn btn-default">Send</button>
+          <button class="btn btn-default">Send</button>
         </div>
 
       </form>
-  
+    </div>
  </div>
 
  <script type="text/javascript">

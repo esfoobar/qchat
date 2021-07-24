@@ -28,8 +28,25 @@ body {
   flex-basis: 275px;
 }
 
-#chat-window {
+#chat-bar {
   background: #999;
   border-radius: 0 10px 10px 0;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
   flex-grow: 1;
+}
+
+#chat-window {
+  flex: 1 1 auto;
+  flex-flow: column;
+  overflow-y: scroll;
+  display: flex;
+  margin: 10px 10px 5px 10px;
+  flex-direction: column-reverse;
+}
+
+#chat-input {
+  flex: 1 0 40px;
+  margin: 5px;
 }
