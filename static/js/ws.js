@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "/ws?cursor_id=" +
       cursorId
   );
+
   ws.onmessage = function (event) {
     var messages_dom = document.getElementById("chat-messages");
     var message_dom = document.createElement("li");
@@ -61,9 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
     messages_dom.appendChild(message_dom);
   };
 
-  var button = document.getElementsByTagName("button")[0];
+  var button = document.getElementById("chat-message-button");
   button.onclick = function () {
-    var content = document.getElementsByTagName("input")[0].value;
+    var messageInput = document.getElementById("chat-message-input");
+    var content = messageInput.value;
     ws.send(content);
+    messageInput.value = "";
   };
 });

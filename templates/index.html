@@ -11,25 +11,40 @@
 
 
 <div id="chat-container">
+  
   <div id="side-bar">
   </div>
+
   <div id="chat-bar">
+
     <div id="chat-window">
-      <ul id="chat-messages">
+
+      <div id="chat-messages">
         {% for message in chat_messages %}
-          <li>@{{ message.username }} {{ message.body }}</li>
+        <div class="message-object"> 
+          <div class="message-user">
+            @{{ message.username }}
+          </div>
+          <div class="message-body"> 
+            {{ message.body }}
+          </div>
+        </div>
         {% endfor %}
-      </ul>
+      </div>
 
     </div>
+
     <div id="chat-input">
       <form role="form" class="form-inline" onsubmit="event.preventDefault();">
         <div class="form-group">
-          <input name="message" type="text" class="form-control" id="message" placeholder="What's happening?">
-          <button class="btn btn-default">Send</button>
+          <input name="message" type="text" class="form-control" id="chat-message-input" placeholder="What's happening?">
+          <button id="chat-message-button" class="btn btn-default">Send</button>
         </div>
       </form>
     </div>
+
+  </div>
+
  </div>
 
  <script type="text/javascript">

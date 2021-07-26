@@ -1,5 +1,4 @@
 from quart import current_app
-from typing import Union
 
 from settings import IMAGES_URL
 
@@ -14,7 +13,9 @@ class User:
 
     @classmethod
     async def get_user_by_username(cls, username: str):
-        user_document = await current_app.dbc.user.find_one({"username": username})
+        user_document = await current_app.dbc.user.find_one(
+            {"username": username}
+        )
         if not user_document:
             return None
         else:
@@ -55,3 +56,7 @@ class User:
             image_dict["image_url_lg"] = f"{IMAGES_URL}/user/profile.lg.png"
             image_dict["image_url_sm"] = f"{IMAGES_URL}/user/profile.sm.png"
         return image_dict
+
+    @staticmethod
+    async def attach_profile_image(message: dict) -> dict:
+        return message
