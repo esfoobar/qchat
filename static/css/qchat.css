@@ -39,7 +39,6 @@ body {
 
 #chat-window {
   flex: 1 1 auto;
-  flex-flow: column;
   overflow-y: scroll;
   display: flex;
   margin: 10px 10px 5px 10px;
@@ -47,6 +46,8 @@ body {
 }
 
 #chat-input {
-  flex: 1 0 40px;
-  margin: 5px;
+  flex: 0 0 60px;
+  background: #c3c9b2;
+  display: flex;
+  padding: 15px;
 }
