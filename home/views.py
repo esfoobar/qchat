@@ -50,6 +50,7 @@ async def sending(dbc, session, cursor_id):
     while True:
         message = await dbc.chat.find_one({"timestamp": {"$gt": cursor_id}})
         if message:
+            message = await User().attach_profile_image(message)
             await websocket.send(f"@{message['username']} {message['body']}")
             cursor_id = message["timestamp"]
         await asyncio.sleep(1)

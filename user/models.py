@@ -59,4 +59,8 @@ class User:
 
     @staticmethod
     async def attach_profile_image(message: dict) -> dict:
+        # look up the user
+        username = message["username"]
+        user = await User().get_user_by_username(username=username)
+        message["user_images"] = user.images
         return message

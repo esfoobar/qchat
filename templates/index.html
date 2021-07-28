@@ -11,9 +11,6 @@
 
 
 <div id="chat-container">
-  
-  <div id="side-bar">
-  </div>
 
   <div id="chat-bar">
 
@@ -22,10 +19,23 @@
       <div id="chat-messages">
         {% for message in chat_messages %}
         <div class="message-object"> 
-          <div class="message-user">
-            @{{ message.username }}
+          <div class="message-user-profile">
+            <a href="/user/{{ message.username }}">
+              <img
+                class="img-thumbnail"
+                src="{{ message.user_images.image_url_sm }}"
+                width="50"
+                height="50"
+                alt="{{ message.username }}"
+              />
+              </a>
           </div>
           <div class="message-body"> 
+            <div class="message-body-username">
+              <a href="/user/{{ message.username }}">
+                @{{ message.username }}
+              </a>
+            </div>
             {{ message.body }}
           </div>
         </div>
@@ -45,6 +55,9 @@
 
   </div>
 
+  <div id="side-bar">
+  </div>
+    
  </div>
 
  <script type="text/javascript">
