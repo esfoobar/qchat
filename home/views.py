@@ -9,6 +9,7 @@ from quart import (
 import uuid
 import asyncio
 import time
+import json
 
 from user.decorators import login_required
 from user.models import User
@@ -51,7 +52,8 @@ async def sending(dbc, session, cursor_id):
         message = await dbc.chat.find_one({"timestamp": {"$gt": cursor_id}})
         if message:
             message = await User().attach_profile_image(message)
-            await websocket.send(f"@{message['username']} {message['body']}")
+            message["_id"] = str(message["_id"])
+            await websocket.send(json.dumps(message))
             cursor_id = message["timestamp"]
         await asyncio.sleep(1)
 
