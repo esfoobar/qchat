@@ -1,9 +1,10 @@
 from quart import current_app
+from typing import Union, Type
 
 from settings import IMAGES_URL
 
 
-class User:
+class User(object):
     def __init__(self, username: str = None, password: str = None):
         self.uid = ""
         self.username = username
@@ -12,7 +13,9 @@ class User:
         self.images: dict = {}
 
     @classmethod
-    async def get_user_by_username(cls, username: str):
+    async def get_user_by_username(
+        cls, username: str
+    ) -> Union[Type["User"], None]:
         user_document = await current_app.dbc.user.find_one(
             {"username": username}
         )
@@ -62,5 +65,6 @@ class User:
         # look up the user
         username = message["username"]
         user = await User().get_user_by_username(username=username)
-        message["user_images"] = user.images
+        if user:
+            message["user_images"] = user.images
         return message

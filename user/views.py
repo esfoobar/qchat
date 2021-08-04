@@ -76,7 +76,10 @@ async def register() -> Union[str, "Response"]:
             session["csrf_token"] = str(csrf_token)
 
     return await render_template(
-        "user/register.html", error=error, username=username, csrf_token=csrf_token
+        "user/register.html",
+        error=error,
+        username=username,
+        csrf_token=csrf_token,
     )
 
 
@@ -114,7 +117,7 @@ async def login() -> Union[str, "Response"]:
         elif not pbkdf2_sha256.verify(password, user.password):
             error = "User not found"
 
-        if not error:
+        if user and not error:
             # login the user
             if not current_app.testing:
                 del session["csrf_token"]
@@ -127,7 +130,7 @@ async def login() -> Union[str, "Response"]:
                 session.pop("next")
                 return redirect(next)
             else:
-                return redirect(url_for("home_app.init"))
+                return redirect(url_for("chat_app.index"))
 
         else:
             session["csrf_token"] = str(csrf_token)
@@ -151,7 +154,9 @@ async def profile_edit() -> Union[str, "Response"]:
     csrf_token: uuid.UUID = uuid.uuid4()
 
     # grab the user's details
-    profile_user = await User().get_user_by_username(username=session["username"])
+    profile_user = await User().get_user_by_username(
+        username=session["username"]
+    )
 
     if request.method == "GET":
         session["csrf_token"] = str(csrf_token)
@@ -178,22 +183,26 @@ async def profile_edit() -> Union[str, "Response"]:
 
         # image upload (skip if testing)
         changed_image: bool = False
-        if not current_app.testing:
+        if profile_user and not current_app.testing:
             files = await request.files
             profile_image = files.get("profile_image")
 
             # if no filename, no file was uploaded
             if profile_image.filename:
                 filename = (
-                    str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
+                    str(uuid.uuid4())
+                    + "-"
+                    + secure_filename(profile_image.filename)
                 )
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 profile_image.save(file_path)
-                image_uid = thumbnail_process(file_path, "user", str(profile_user.uid))
+                image_uid = thumbnail_process(
+                    file_path, "user", str(profile_user.uid)
+                )
                 changed_image = True
 
         # edit the profile
-        if not error:
+        if profile_user and not error:
             if not current_app.testing:
                 del session["csrf_token"]
 

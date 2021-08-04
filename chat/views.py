@@ -14,16 +14,10 @@ import json
 from user.decorators import login_required
 from user.models import User
 
-home_app = Blueprint("home_app", __name__)
+chat_app = Blueprint("chat_app", __name__)
 
 
-@home_app.route("/index2", methods=["GET"])
-@login_required
-async def init() -> str:
-    return "Hello @" + session["username"]
-
-
-@home_app.route("/")
+@chat_app.route("/")
 @login_required
 async def index() -> str:
     number_of_messages = 50
@@ -70,7 +64,7 @@ async def receiving(dbc, session):
         await dbc.chat.insert_one(message_document)
 
 
-@home_app.websocket("/ws")
+@chat_app.websocket("/ws")
 @login_required
 async def ws():
     dbc = current_app.dbc

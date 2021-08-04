@@ -4,8 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-mypy = "==0.720"
+mypy = "*"
 pylint = "*"
+black = "*"
 
 [packages]
 quart = "==0.14.1"
@@ -19,3 +20,6 @@ arrow = "==0.16.0"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
