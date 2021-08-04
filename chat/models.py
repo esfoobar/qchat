@@ -1,14 +1,18 @@
 from quart import current_app
 from typing import Tuple
+import uuid
+import time
 
 from user.models import User
 
 
 class Message(object):
-    def __init__(self, user: User, message: str):
-        pass
+    def __init__(self, user: User, body: str):
+        self.uid: str = str(uuid.uuid4())
+        self.user: User = user
+        self.body: str = body
+        self.timestamp: int = int(time.time())
 
-    @classmethod
     async def get_last_messages(
         cls, number_of_messages: int = 50
     ) -> Tuple[list, int]:
