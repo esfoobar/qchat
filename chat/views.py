@@ -13,6 +13,7 @@ import json
 
 from user.decorators import login_required
 from user.models import User
+from .models import Message
 
 chat_app = Blueprint("chat_app", __name__)
 
@@ -22,8 +23,12 @@ chat_app = Blueprint("chat_app", __name__)
 async def index() -> str:
     number_of_messages = 50
 
+    (chat_messages, cursor_id) = await Message.get_last_messages(
+        number_of_messages
+    )
+
     return await render_template(
-        "index.html", chat_messages=chat_messages, cursor_id=cursor_id
+        "chat/index.html", chat_messages=chat_messages, cursor_id=cursor_id
     )
 
 
