@@ -1,4 +1,3 @@
-from typing import NoReturn
 from quart import (
     Blueprint,
     render_template,
@@ -6,9 +5,7 @@ from quart import (
     current_app,
     websocket,
 )
-import uuid
 import asyncio
-import time
 import json
 
 from user.decorators import login_required
@@ -34,12 +31,13 @@ async def index() -> str:
 
 async def sending(dbc, session, cursor_id):
     while True:
-        message = await dbc.chat.find_one({"timestamp": {"$gt": cursor_id}})
+        message = await Message.get_first_message_after_cursor(cursor_id)
         if message:
-            message = await User().attach_profile_image(message)
-            message["_id"] = str(message["_id"])
-            await websocket.send(json.dumps(message))
-            cursor_id = message["timestamp"]
+            # convert user to dict
+            message.user = message.user.__dict__
+            await websocket.send(json.dumps(message.__dict__))
+            breakpoint()
+            cursor_id = message.timestamp
         await asyncio.sleep(1)
 
 
@@ -47,12 +45,10 @@ async def receiving(dbc, session):
     while True:
         data = await websocket.receive()
         message_document = {
-            "uid": str(uuid.uuid4()),
             "username": session.get("username"),
             "body": data,
-            "timestamp": int(time.time()),
         }
-        await dbc.chat.insert_one(message_document)
+        await Message(**message_document).save()
 
 
 @chat_app.websocket("/ws")

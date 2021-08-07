@@ -12,29 +12,26 @@ class User(object):
         self.image = ""
         self.images: dict = {}
 
-    @classmethod
-    async def get_user_by_username(
-        cls, username: str
-    ) -> Union[Type["User"], None]:
+    async def get_user_by_username(self, username: str) -> Union["User", None]:
         user_document = await current_app.dbc.user.find_one(
             {"username": username}
         )
         if not user_document:
             return None
         else:
-            cls.uid = str(user_document["uid"])
-            cls.username = user_document["username"]
-            cls.password = user_document["password"]
-            cls.image = user_document["image"]
-            cls.images = {}
+            self.uid = str(user_document["uid"])
+            self.username = user_document["username"]
+            self.password = user_document["password"]
+            self.image = user_document["image"]
+            self.images = {}
 
-            image_dict = cls._image_url_from_image_ts(cls.uid, cls.image)
-            cls.images["image_url_raw"] = image_dict["image_url_raw"]
-            cls.images["image_url_xlg"] = image_dict["image_url_xlg"]
-            cls.images["image_url_lg"] = image_dict["image_url_lg"]
-            cls.images["image_url_sm"] = image_dict["image_url_sm"]
+            image_dict = User._image_url_from_image_ts(self.uid, self.image)
+            self.images["image_url_raw"] = image_dict["image_url_raw"]
+            self.images["image_url_xlg"] = image_dict["image_url_xlg"]
+            self.images["image_url_lg"] = image_dict["image_url_lg"]
+            self.images["image_url_sm"] = image_dict["image_url_sm"]
 
-            return cls
+            return self
 
     @staticmethod
     def _image_url_from_image_ts(user_uid: str, user_image: str) -> dict:
