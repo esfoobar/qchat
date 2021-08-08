@@ -56,12 +56,3 @@ class User(object):
             image_dict["image_url_lg"] = f"{IMAGES_URL}/user/profile.lg.png"
             image_dict["image_url_sm"] = f"{IMAGES_URL}/user/profile.sm.png"
         return image_dict
-
-    @staticmethod
-    async def attach_profile_image(message: dict) -> dict:
-        # look up the user
-        username = message["username"]
-        user = await User().get_user_by_username(username=username)
-        if user:
-            message["user_images"] = user.images
-        return message

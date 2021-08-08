@@ -63,6 +63,8 @@ async def register() -> Union[str, "Response"]:
                 del session["csrf_token"]
 
             hash: str = pbkdf2_sha256.hash(password)
+
+            #### TODO: REFACTOR THIS TO USER.SAVE()
             user_document = {
                 "uid": str(uuid.uuid4()),
                 "username": username,
@@ -211,6 +213,7 @@ async def profile_edit() -> Union[str, "Response"]:
             if changed_image:
                 profile_user.image = image_uid
 
+            #### TODO: REFACTOR THIS TO USER.SAVE()
             # update the user
             user_document = {
                 "username": profile_user.username,
