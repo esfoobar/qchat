@@ -2,9 +2,7 @@ from quart import current_app
 from typing import Any, Tuple, Optional
 import uuid
 import time
-from bson.objectid import ObjectId
-from typing import Union, Any, List, Type
-from collections import namedtuple
+from typing import Any, List, Optional
 
 from user.models import User
 
@@ -62,9 +60,7 @@ class Message(object):
     @classmethod
     async def get_first_message_after_cursor(
         cls, cursor_id: int
-    ) -> Union["Message", None]:
-        cursor_id = 0
-
+    ) -> Optional["Message"]:
         db_message = await current_app.dbc.chat.find_one(
             {"timestamp": {"$gt": cursor_id}}
         )

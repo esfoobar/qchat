@@ -36,7 +36,6 @@ async def sending(dbc, session, cursor_id):
             # convert user to dict
             message.user = message.user.__dict__
             await websocket.send(json.dumps(message.__dict__))
-            breakpoint()
             cursor_id = message.timestamp
         await asyncio.sleep(1)
 

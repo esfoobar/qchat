@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <a href="/user/${data.username}">
                 <img
                   class="img-thumbnail img-circle"
-                  src="${data.user_images.image_url_sm}"
+                  src="${data.user.images.image_url_sm}"
                   width="50"
                   height="50"
                   alt="${data.username}}"

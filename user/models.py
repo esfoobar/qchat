@@ -1,5 +1,5 @@
 from quart import current_app
-from typing import Union, Type
+from typing import Optional
 
 from settings import IMAGES_URL
 
@@ -12,7 +12,7 @@ class User(object):
         self.image = ""
         self.images: dict = {}
 
-    async def get_user_by_username(self, username: str) -> Union["User", None]:
+    async def get_user_by_username(self, username: str) -> Optional["User"]:
         user_document = await current_app.dbc.user.find_one(
             {"username": username}
         )
