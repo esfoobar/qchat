@@ -81,3 +81,8 @@ class Message(object):
         message.body = db_message["body"]
         message.timestamp = db_message["timestamp"]
         return message
+
+    def to_dict(self) -> dict:
+        # convert user to dict
+        self.user = self.user.__dict__
+        return self.__dict__
