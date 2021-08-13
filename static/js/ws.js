@@ -49,6 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
   button.onclick = function () {
     var messageInput = document.getElementById("chat-message-input");
     var content = messageInput.value;
+    console.log("ws.readystate", ws.readyState);
+    if (ws.readyState == 2 || ws.readyState == 3) {
+      alert("Connection closed");
+    }
     ws.send(content);
     messageInput.value = "";
   };

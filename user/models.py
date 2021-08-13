@@ -12,6 +12,24 @@ class User(object):
         self.image = ""
         self.images: dict = {}
 
+    async def save(self):
+        if self.uid == "":
+            self.uid = str(uuid.uuid4())
+
+        if self.timestamp == 0:
+            self.timestamp = int(time.time())
+
+        # remove fields not used in collection
+        del self.id
+        del self.user
+
+        # store on mongodb
+        db_user = await current_app.dbc.user.insert_one(self.__dict__)
+
+        # reload properties
+        self.id = str(db_message.inserted_id)
+        self.user = await User().get_user_by_username(username=self.username)
+
     async def get_user_by_username(self, username: str) -> Optional["User"]:
         user_document = await current_app.dbc.user.find_one(
             {"username": username}

@@ -65,13 +65,11 @@ async def register() -> Union[str, "Response"]:
             hash: str = pbkdf2_sha256.hash(password)
 
             #### TODO: REFACTOR THIS TO USER.SAVE()
-            user_document = {
-                "uid": str(uuid.uuid4()),
-                "username": username,
-                "password": hash,
-                "image": "",
-            }
-            await current_app.dbc.user.insert_one(user_document)
+            user = User(
+                username=username,
+                password=hash,
+            ).save()
+
             await flash("You have been registered, please login")
             return redirect(url_for(".login"))
         else:
