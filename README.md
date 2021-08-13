@@ -12,9 +12,10 @@ A Quart based chat
 
 ### MacOS
 
-- Install pipenv `brew install pipenv`
+- Install pipenv `pip install pipenv`
 - Install dependencies `pipenv install`
   - You will need to install ImageMagick dependency via `brew install imagemagick`
 - [Install mongodb](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/)
 - Run mongodb with `mongod --config /usr/local/etc/mongod.conf`
-- Run the application using `pipenv run quart`
+- Set the mongodb host on `.quartenv` to `localhost`
+- Run the application using `pipenv run quart run --host 0.0.0.0`
