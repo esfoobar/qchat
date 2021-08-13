@@ -1,9 +1,0 @@
-QUART_APP='manage.py'
-QUART_ENV=development
-SECRET_KEY='my_secret_key'
-MONGODB_DB='qchat'
-MONGODB_HOST='mongodb'
-MONGODB_PORT=27017
-UPLOAD_FOLDER='/opt/flaskbook/static/uploads'
-IMAGES_FOLDER='/opt/flaskbook/static/images'
-IMAGES_URL='http://localhost:5000/static/images'
