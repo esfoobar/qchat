@@ -29,6 +29,7 @@ A Quart based chat
   - You will need to install ImageMagick dependency via `winget install imagemagick`
 - [Install mongodb](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/)
   - ` winget install "MongoDB Server"`
+  - Create a directory called `\data\db` with `md "\data\db"`
 - Run mongodb with `C:\"Program Files"\MongoDB\Server\5.0\bin\mongod.exe --dbpath="c:\data\db"` (note the double quotes around "Program Files")
 - Set the mongodb host on `.quartenv` to `localhost`
 - Run the application using `pipenv run quart run --host 0.0.0.0`

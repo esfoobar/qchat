@@ -10,7 +10,7 @@ from quart import (
     current_app,
     abort,
 )
-from passlib.hash import pbkdf2_sha256
+
 import uuid
 from typing import Union, TYPE_CHECKING
 import os
@@ -62,12 +62,10 @@ async def register() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            hash: str = pbkdf2_sha256.hash(password)
-
-            #### TODO: REFACTOR THIS TO USER.SAVE()
-            user = User(
+            # Save the user
+            user = await User(
                 username=username,
-                password=hash,
+                password=password,
             ).save()
 
             await flash("You have been registered, please login")
@@ -110,11 +108,8 @@ async def login() -> Union[str, "Response"]:
             error = "Invalid POST contents"
 
         # check if the user exists
-        user = await User().get_user_by_username(username=username)
+        user = await User().login(username=username, password=password)
         if not user:
-            error = "User not found"
-        # check the password
-        elif not pbkdf2_sha256.verify(password, user.password):
             error = "User not found"
 
         if user and not error:
@@ -126,7 +121,7 @@ async def login() -> Union[str, "Response"]:
             session["username"] = user.username
 
             if "next" in session:
-                next = session.get("next")
+                next = session["next"]
                 session.pop("next")
                 return redirect(next)
             else:

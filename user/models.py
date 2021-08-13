@@ -1,11 +1,16 @@
 from quart import current_app
 from typing import Optional
+import uuid
+from passlib.hash import pbkdf2_sha256
 
 from settings import IMAGES_URL
 
 
 class User(object):
-    def __init__(self, username: str = None, password: str = None):
+    def __init__(
+        self, username: Optional[str] = None, password: Optional[str] = None
+    ):
+        self.id: str = ""  # set after record is written
         self.uid = ""
         self.username = username
         self.password = password
@@ -16,19 +21,33 @@ class User(object):
         if self.uid == "":
             self.uid = str(uuid.uuid4())
 
-        if self.timestamp == 0:
-            self.timestamp = int(time.time())
+        # check if this is a new password or password update
+        original_user = await current_app.dbc.user.find_one(
+            {"username": self.username}
+        )
+        if not original_user or original_user.password != self.password:
+            self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
         del self.id
-        del self.user
 
         # store on mongodb
         db_user = await current_app.dbc.user.insert_one(self.__dict__)
 
-        # reload properties
-        self.id = str(db_message.inserted_id)
-        self.user = await User().get_user_by_username(username=self.username)
+        # grab mongodb id
+        self.id = str(db_user.inserted_id)
+
+        return self
+
+    @staticmethod
+    async def login(username: str, password: str) -> Optional["User"]:
+        user = await User().get_user_by_username(username=username)
+        if not user:
+            return None
+        # check the password
+        elif not pbkdf2_sha256.verify(password, user.password):
+            return None
+        return user
 
     async def get_user_by_username(self, username: str) -> Optional["User"]:
         user_document = await current_app.dbc.user.find_one(
