@@ -18,7 +18,7 @@ class Message(object):
         self.body = body
         self.timestamp: int = 0
 
-    async def save(self):
+    async def save(self) -> "Message":
         if self.uid == "":
             self.uid = str(uuid.uuid4())
 
@@ -35,6 +35,8 @@ class Message(object):
         # reload properties
         self.id = str(db_message.inserted_id)
         self.user = await User().get_user_by_username(username=self.username)
+
+        return self
 
     @classmethod
     async def get_last_messages(

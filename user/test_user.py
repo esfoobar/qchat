@@ -1,5 +1,5 @@
 import pytest
-from quart import current_app, session
+from quart import current_app
 
 from user.models import *
 
@@ -127,7 +127,9 @@ async def test_profile_edit(create_test_client):
 
     # succesful edit
     response = await create_test_client.post(
-        "/profile/edit", form={"username": "testuser_edited"}, follow_redirects=True
+        "/profile/edit",
+        form={"username": "testuser_edited"},
+        follow_redirects=True,
     )
     body = await response.get_data()
     assert "Profile edited" in str(body)

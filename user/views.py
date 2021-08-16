@@ -183,7 +183,7 @@ async def profile_edit() -> Union[str, "Response"]:
             profile_image = files.get("profile_image")
 
             # if no filename, no file was uploaded
-            if profile_image.filename:
+            if profile_image and profile_image.filename:
                 filename = (
                     str(uuid.uuid4())
                     + "-"
@@ -206,12 +206,7 @@ async def profile_edit() -> Union[str, "Response"]:
             if changed_image:
                 profile_user.image = image_uid
 
-            #### TODO: REFACTOR THIS TO USER.SAVE()
             # update the user
-            user_document = {
-                "username": profile_user.username,
-                "image": profile_user.image,
-            }
             await current_app.dbc.user.update_one(
                 {"uid": session["user_uid"]}, {"$set": user_document}
             )

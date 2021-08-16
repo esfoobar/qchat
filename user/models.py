@@ -17,7 +17,7 @@ class User(object):
         self.image = ""
         self.images: dict = {}
 
-    async def save(self):
+    async def save(self) -> "User":
         if self.uid == "":
             self.uid = str(uuid.uuid4())
 
@@ -28,11 +28,19 @@ class User(object):
         if not original_user or original_user.password != self.password:
             self.password = pbkdf2_sha256.hash(self.password)
 
-        # remove fields not used in collection
-        del self.id
+        # if brand new user
+        if not self.id:
+            # remove fields not used in collection
+            del self.id
 
-        # store on mongodb
-        db_user = await current_app.dbc.user.insert_one(self.__dict__)
+            # store on mongodb
+            db_user = await current_app.dbc.user.insert_one(self.__dict__)
+        # else it's a user update
+        else:
+            # update user
+            db_user = await current_app.dbc.user.update_one(
+                {"uid": self.uid}, {"$set": self.__dict__}
+            )
 
         # grab mongodb id
         self.id = str(db_user.inserted_id)
