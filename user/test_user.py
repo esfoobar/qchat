@@ -72,7 +72,7 @@ async def test_succesful_login(create_test_client):
         "/login", form=user_dict(), follow_redirects=True
     )
     body = await response.get_data()
-    assert "@testuser" in str(body)
+    assert f"@{user_dict()['username']}" in str(body)
 
     # Check that the session is being set
     async with create_test_client.session_transaction() as sess:
@@ -138,3 +138,35 @@ async def test_profile_edit(create_test_client):
     # check session was changed
     async with create_test_client.session_transaction() as sess:
         assert sess["username"] == "testuser_edited"
+
+    # password edit
+    response = await create_test_client.post(
+        "/profile/edit",
+        form={"username": user_dict()["username"], "password": "new_password"},
+        follow_redirects=True,
+    )
+    body = await response.get_data()
+    assert "Profile edited" in str(body)
+
+    # logout
+    response = await create_test_client.get(
+        "/logout", form=user_dict(), follow_redirects=True
+    )
+    body = await response.get_data()
+    assert "Login" in str(body)
+
+    # login with old password
+    response = await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
+    body = await response.get_data()
+    assert "User not found" in str(body)
+
+    # login with new password
+    response = await create_test_client.post(
+        "/login",
+        form={"username": user_dict()["username"], "password": "new_password"},
+        follow_redirects=True,
+    )
+    body = await response.get_data()
+    assert f"@{user_dict()['username']}" in str(body) in str(body)
