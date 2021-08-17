@@ -157,6 +157,7 @@ async def profile_edit() -> Union[str, "Response"]:
     if request.method == "POST":
         form: dict = await request.form
         form_username = form.get("username", "")
+        form_password = form.get("password", "")
 
         if not form_username:
             error = "Please enter username"
@@ -173,6 +174,10 @@ async def profile_edit() -> Union[str, "Response"]:
 
             if user and user.uid:
                 error = "Username already exists"
+
+        # update password
+        if not error and form_password:
+            profile_user.password = form_password
 
         # image upload (skip if testing)
         changed_image: bool = False

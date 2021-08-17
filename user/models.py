@@ -28,7 +28,9 @@ class User(object):
             original_user = await current_app.dbc.user.find_one(
                 {"uid": self.uid}
             )
-            if not original_user or original_user["password"] != self.password:
+            if not original_user or original_user[
+                "password"
+            ] != pbkdf2_sha256.hash(self.password):
                 self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
