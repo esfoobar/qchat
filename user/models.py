@@ -18,7 +18,6 @@ class User(object):
         self.images: dict = {}
 
     async def save(self) -> "User":
-        breakpoint()
         original_user = None
 
         if self.uid == "":
@@ -67,7 +66,7 @@ class User(object):
     ) -> Optional["User"]:
         if user_uid:
             user_document = await current_app.dbc.user.find_one(
-                {"user_uid": user_uid}
+                {"uid": user_uid}
             )
         else:
             user_document = await current_app.dbc.user.find_one(

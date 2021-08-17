@@ -188,7 +188,7 @@ async def profile_edit() -> Union[str, "Response"]:
                     + secure_filename(profile_image.filename)
                 )
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
-                profile_image.save(file_path)
+                await profile_image.save(file_path)
                 image_uid = thumbnail_process(
                     file_path, "user", str(profile_user.uid)
                 )

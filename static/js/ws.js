@@ -3,20 +3,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const HTMLmarkup = `
           <div class="message-object"> 
             <div class="message-user-profile">
-              <a href="/user/${data.username}">
+              <a href="/user/${data.user.username}">
                 <img
                   class="img-thumbnail img-circle"
                   src="${data.user.images.image_url_sm}"
                   width="50"
                   height="50"
-                  alt="${data.username}}"
+                  alt="${data.user.username}}"
                 />
               </a>
             </div>
             <div class="message-body"> 
               <div class="message-body-username">
-                <a href="/user/${data.username}">
-                  @${data.username}
+                <a href="/user/${data.user.username}">
+                  @${data.user.username}
                 </a>
               </div>
               ${data.body}

@@ -20,20 +20,20 @@
         {% for message in chat_messages %}
         <div class="message-object"> 
           <div class="message-user-profile">
-            <a href="/user/{{ message.username }}">
+            <a href="/user/{{ message.user.username }}">
               <img
                 class="img-thumbnail img-circle"
                 src="{{ message.user.images.image_url_sm }}"
                 width="50"
                 height="50"
-                alt="{{ message.username }}"
+                alt="{{ message.user.username }}"
               />
               </a>
           </div>
           <div class="message-body"> 
             <div class="message-body-username">
-              <a href="/user/{{ message.username }}">
-                @{{ message.username }}
+              <a href="/user/{{ message.user.username }}">
+                @{{ message.user.username }}
               </a>
             </div>
             {{ message.body }}
