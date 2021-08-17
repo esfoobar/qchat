@@ -22,6 +22,7 @@ class User(object):
 
         if self.uid == "":
             self.uid = str(uuid.uuid4())
+            self.password = pbkdf2_sha256.hash(self.password)
         else:
             # check if this is a new password or password update
             original_user = await current_app.dbc.user.find_one(
