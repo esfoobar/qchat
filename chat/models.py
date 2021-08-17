@@ -9,11 +9,11 @@ from user.models import User
 
 class Message(object):
     def __init__(
-        self, username: Optional[str] = None, body: Optional[str] = None
+        self, user_uid: Optional[str] = None, body: Optional[str] = None
     ):
         self.id: str = ""  # set after record is written
         self.uid: str = ""
-        self.username = username
+        self.user_uid: str = user_uid
         self.user: Any = None  # User object
         self.body = body
         self.timestamp: int = 0
@@ -34,7 +34,7 @@ class Message(object):
 
         # reload properties
         self.id = str(db_message.inserted_id)
-        self.user = await User().get_user_by_username(username=self.username)
+        self.user = await User().get_user(user_uid=self.user_uid)
 
         return self
 
@@ -76,10 +76,8 @@ class Message(object):
         message = Message()
         message.id = str(db_message["_id"])
         message.uid = db_message["uid"]
-        message.username = db_message["username"]
-        message.user = await User().get_user_by_username(
-            username=db_message["username"]
-        )
+        message.user_uid = db_message["user_uid"]
+        message.user = await User().get_user(user_uid=db_message["user_uid"])
         message.body = db_message["body"]
         message.timestamp = db_message["timestamp"]
         return message

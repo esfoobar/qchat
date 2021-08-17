@@ -18,23 +18,31 @@ class User(object):
         self.images: dict = {}
 
     async def save(self) -> "User":
+        breakpoint()
+        original_user = None
+
         if self.uid == "":
             self.uid = str(uuid.uuid4())
+        else:
+            # check if this is a new password or password update
+            original_user = await current_app.dbc.user.find_one(
+                {"uid": self.uid}
+            )
+            if not original_user or original_user["password"] != self.password:
+                self.password = pbkdf2_sha256.hash(self.password)
 
-        # check if this is a new password or password update
-        original_user = await current_app.dbc.user.find_one(
-            {"username": self.username}
-        )
-        if not original_user or original_user.password != self.password:
-            self.password = pbkdf2_sha256.hash(self.password)
+        # remove fields not used in collection
+        del self.id
+        del self.images
 
         # if brand new user
-        if not self.id:
-            # remove fields not used in collection
-            del self.id
-
+        if not original_user:
             # store on mongodb
             db_user = await current_app.dbc.user.insert_one(self.__dict__)
+
+            # grab mongodb id
+            self.id = str(db_user.inserted_id)
+
         # else it's a user update
         else:
             # update user
@@ -42,14 +50,11 @@ class User(object):
                 {"uid": self.uid}, {"$set": self.__dict__}
             )
 
-        # grab mongodb id
-        self.id = str(db_user.inserted_id)
-
         return self
 
     @staticmethod
     async def login(username: str, password: str) -> Optional["User"]:
-        user = await User().get_user_by_username(username=username)
+        user = await User().get_user(username=username)
         if not user:
             return None
         # check the password
@@ -57,10 +62,17 @@ class User(object):
             return None
         return user
 
-    async def get_user_by_username(self, username: str) -> Optional["User"]:
-        user_document = await current_app.dbc.user.find_one(
-            {"username": username}
-        )
+    async def get_user(
+        self, user_uid: Optional[str] = None, username: Optional[str] = None
+    ) -> Optional["User"]:
+        if user_uid:
+            user_document = await current_app.dbc.user.find_one(
+                {"user_uid": user_uid}
+            )
+        else:
+            user_document = await current_app.dbc.user.find_one(
+                {"username": username}
+            )
         if not user_document:
             return None
         else:

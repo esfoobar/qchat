@@ -42,7 +42,7 @@ async def receiving(dbc, session):
     while True:
         data = await websocket.receive()
         message_document = {
-            "username": session.get("username"),
+            "user_uid": session.get("uid"),
             "body": data,
         }
         await Message(**message_document).save()

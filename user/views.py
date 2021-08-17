@@ -53,7 +53,7 @@ async def register() -> Union[str, "Response"]:
 
         # check if the user exists
         if not error:
-            user = await User().get_user_by_username(username=username)
+            user = await User().get_user(username=username)
             if user and user.uid:
                 error = "Username already exists"
 
@@ -149,9 +149,7 @@ async def profile_edit() -> Union[str, "Response"]:
     csrf_token: uuid.UUID = uuid.uuid4()
 
     # grab the user's details
-    profile_user = await User().get_user_by_username(
-        username=session["username"]
-    )
+    profile_user = await User().get_user(username=session["username"])
 
     if request.method == "GET":
         session["csrf_token"] = str(csrf_token)
@@ -171,7 +169,7 @@ async def profile_edit() -> Union[str, "Response"]:
 
         # check if the username exists if username changed
         if not error and session["username"] != form_username:
-            user = await User().get_user_by_username(form_username)
+            user = await User().get_user(username=form_username)
 
             if user and user.uid:
                 error = "Username already exists"
@@ -182,7 +180,7 @@ async def profile_edit() -> Union[str, "Response"]:
             files = await request.files
             profile_image = files.get("profile_image")
 
-            # if no filename, no file was uploaded
+            # if there's a profile_image, new file was uploaded
             if profile_image and profile_image.filename:
                 filename = (
                     str(uuid.uuid4())
@@ -207,9 +205,7 @@ async def profile_edit() -> Union[str, "Response"]:
                 profile_user.image = image_uid
 
             # update the user
-            await current_app.dbc.user.update_one(
-                {"uid": session["user_uid"]}, {"$set": user_document}
-            )
+            await profile_user.save()
 
             # update session with new username
             session["username"] = form_username
@@ -232,7 +228,7 @@ async def profile_edit() -> Union[str, "Response"]:
 @login_required
 async def profile(username) -> Union[str, "Response"]:
     # fetch the user
-    user = await User().get_user_by_username(username)
+    user = await User().get_user(username=username)
 
     # user not found
     if not user:

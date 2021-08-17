@@ -33,5 +33,4 @@ A Quart based chat
 - Run mongodb with `C:\"Program Files"\MongoDB\Server\5.0\bin\mongod.exe --dbpath="c:\data\db"` (note the double quotes around "Program Files")
 - Set the mongodb host on `.quartenv` to `localhost`
 - Run the application using `pipenv run quart run --host 0.0.0.0`
-  - Note: there seems to be a disconnection bug with the above on Windows, so you might want to find your virtualenv using `pipenv --venv` and then running Quart using the path plus `\Scripts\python.exe -m quart run`
 - Allow Windows Defender Firewall access
