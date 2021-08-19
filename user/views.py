@@ -176,7 +176,7 @@ async def profile_edit() -> Union[str, "Response"]:
                 error = "Username already exists"
 
         # update password
-        if not error and form_password:
+        if profile_user and not error and form_password:
             profile_user.password = form_password
 
         # image upload (skip if testing)
@@ -245,7 +245,7 @@ async def profile(username) -> Union[str, "Response"]:
 @user_app.route("/user/list")
 @login_required
 async def user_list() -> Union[str, "Response"]:
-    user_collection = current_app.dbc.user
+    user_collection = current_app.dbc.user  # type: ignore
 
     async for user in user_collection.find({}):
         print(user)
