@@ -53,6 +53,11 @@ async def receiving(dbc, session):
 async def ws():
     dbc = current_app.dbc
     cursor_id = int(websocket.args.get("cursor_id"))
-    producer = asyncio.create_task(sending(dbc, session, cursor_id))
-    consumer = asyncio.create_task(receiving(dbc, session))
-    await asyncio.gather(producer, consumer)
+    try:
+        producer = asyncio.create_task(sending(dbc, session, cursor_id))
+        consumer = asyncio.create_task(receiving(dbc, session))
+        await asyncio.gather(producer, consumer)
+    except asyncio.CancelledError:
+        # Handle disconnection here
+        print(f"{session['username']} disconnected")
+        raise

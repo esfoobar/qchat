@@ -10,7 +10,6 @@ class User(object):
     def __init__(
         self, username: Optional[str] = None, password: Optional[str] = None
     ):
-        self.id: str = ""  # set after record is written
         self.uid = ""
         self.username = username
         self.password = password
@@ -34,16 +33,12 @@ class User(object):
                 self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
-        del self.id
         del self.images
 
         # if brand new user
         if not original_user:
             # store on mongodb
             db_user = await current_app.dbc.user.insert_one(self.__dict__)
-
-            # grab mongodb id
-            self.id = str(db_user.inserted_id)
 
         # else it's a user update
         else:

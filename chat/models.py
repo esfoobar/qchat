@@ -7,14 +7,39 @@ from typing import Any, List, Optional
 from user.models import User
 
 
+class ChannelUser(object):
+    def __init__(
+        self,
+        name: str = "#lobby",
+        user_uid: Optional[str] = None,
+        status: Optional[int] = None,
+    ):
+        self.name = name
+        self.user_uid = user_uid
+        self.user: Optional["User"] = None  # User object
+        self.status = status
+
+    async def save(self) -> "ChannelUser":
+
+        # remove fields not used in collection
+        del self.user
+
+        # store on mongodb
+        db_channel_user = await current_app.dbc.chat.insert_one(self.__dict__)
+
+        # reload properties
+        self.user = await User().get_user(user_uid=self.user_uid)
+
+        return self
+
+
 class Message(object):
     def __init__(
         self, user_uid: Optional[str] = None, body: Optional[str] = None
     ):
-        self.id: str = ""  # set after record is written
         self.uid: str = ""
-        self.user_uid: str = user_uid
-        self.user: Any = None  # User object
+        self.user_uid = user_uid
+        self.user: Optional["User"] = None  # User object
         self.body = body
         self.timestamp: int = 0
 
@@ -26,14 +51,12 @@ class Message(object):
             self.timestamp = int(time.time())
 
         # remove fields not used in collection
-        del self.id
         del self.user
 
         # store on mongodb
         db_message = await current_app.dbc.chat.insert_one(self.__dict__)
 
         # reload properties
-        self.id = str(db_message.inserted_id)
         self.user = await User().get_user(user_uid=self.user_uid)
 
         return self
@@ -74,7 +97,6 @@ class Message(object):
     @staticmethod
     async def dict_to_class(db_message: dict) -> "Message":
         message = Message()
-        message.id = str(db_message["_id"])
         message.uid = db_message["uid"]
         message.user_uid = db_message["user_uid"]
         message.user = await User().get_user(user_uid=db_message["user_uid"])
@@ -83,6 +105,7 @@ class Message(object):
         return message
 
     def to_dict(self) -> dict:
-        # convert user to dict
-        self.user = self.user.__dict__
-        return self.__dict__
+        if self.user:
+            # convert user to dict
+            self.user = self.user.__dict__
+            return self.__dict__
