@@ -25,7 +25,9 @@ class ChannelUser(object):
         del self.user
 
         # store on mongodb
-        db_channel_user = await current_app.dbc.chat.insert_one(self.__dict__)
+        db_channel_user = await current_app.dbc.chat_user.insert_one(
+            self.__dict__
+        )
 
         # reload properties
         self.user = await User().get_user(user_uid=self.user_uid)
@@ -54,7 +56,7 @@ class Message(object):
         del self.user
 
         # store on mongodb
-        db_message = await current_app.dbc.chat.insert_one(self.__dict__)
+        db_message = await current_app.dbc.message.insert_one(self.__dict__)
 
         # reload properties
         self.user = await User().get_user(user_uid=self.user_uid)
@@ -68,14 +70,14 @@ class Message(object):
         cursor_id = 0
         chat_messages = []
 
-        chat_count = await current_app.dbc.chat.count_documents({})
+        chat_count = await current_app.dbc.message.count_documents({})
 
         if chat_count < number_of_messages:
             skip = 0
         else:
             skip = chat_count - number_of_messages
 
-        async for db_message in current_app.dbc.chat.find({}).skip(skip):
+        async for db_message in current_app.dbc.message.find({}).skip(skip):
             message = await Message.dict_to_class(db_message)
             chat_messages.append(message)
             cursor_id = message.timestamp
@@ -86,7 +88,7 @@ class Message(object):
     async def get_first_message_after_cursor(
         cls, cursor_id: int
     ) -> Optional["Message"]:
-        db_message = await current_app.dbc.chat.find_one(
+        db_message = await current_app.dbc.message.find_one(
             {"timestamp": {"$gt": cursor_id}}
         )
         if db_message:
