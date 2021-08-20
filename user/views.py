@@ -188,15 +188,11 @@ async def profile_edit() -> Union[str, "Response"]:
             # if there's a profile_image, new file was uploaded
             if profile_image and profile_image.filename:
                 filename = (
-                    str(uuid.uuid4())
-                    + "-"
-                    + secure_filename(profile_image.filename)
+                    str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
                 )
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 await profile_image.save(file_path)
-                image_uid = thumbnail_process(
-                    file_path, "user", str(profile_user.uid)
-                )
+                image_uid = thumbnail_process(file_path, "user", str(profile_user.uid))
                 changed_image = True
 
         # edit the profile

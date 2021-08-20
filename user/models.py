@@ -7,9 +7,7 @@ from settings import IMAGES_URL
 
 
 class User(object):
-    def __init__(
-        self, username: Optional[str] = None, password: Optional[str] = None
-    ):
+    def __init__(self, username: Optional[str] = None, password: Optional[str] = None):
         self.uid = ""
         self.username = username
         self.password = password
@@ -24,12 +22,12 @@ class User(object):
             self.password = pbkdf2_sha256.hash(self.password)
         else:
             # check if this is a new password or password update
-            original_user = await current_app.dbc.user.find_one(
+            original_user = await current_app.dbc.user.find_one(  # type: ignore
                 {"uid": self.uid}
             )
-            if not original_user or original_user[
-                "password"
-            ] != pbkdf2_sha256.hash(self.password):
+            if not original_user or original_user["password"] != pbkdf2_sha256.hash(
+                self.password
+            ):
                 self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
@@ -63,11 +61,11 @@ class User(object):
         self, user_uid: Optional[str] = None, username: Optional[str] = None
     ) -> Optional["User"]:
         if user_uid:
-            user_document = await current_app.dbc.user.find_one(
+            user_document = await current_app.dbc.user.find_one(  # type: ignore
                 {"uid": user_uid}
             )
         else:
-            user_document = await current_app.dbc.user.find_one(
+            user_document = await current_app.dbc.user.find_one(  # type: ignore
                 {"username": username}
             )
         if not user_document:

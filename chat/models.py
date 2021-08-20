@@ -10,7 +10,7 @@ from user.models import User
 class ChannelUser(object):
     def __init__(
         self,
-        name: str = "#lobby",
+        name: Optional[str] = "#lobby",
         user_uid: Optional[str] = None,
         status: Optional[int] = None,
     ):
@@ -20,13 +20,12 @@ class ChannelUser(object):
         self.status = status
 
     async def save(self) -> "ChannelUser":
-
         # remove fields not used in collection
         del self.user
 
         # store on mongodb
-        db_channel_user = await current_app.dbc.chat_user.insert_one(
-            self.__dict__
+        db_channel_user = await current_app.dbc.chat_user.find_one_and_replace(  # type: ignore
+            {"user_uid": self.user_uid}, self.__dict__, upsert=True
         )
 
         # reload properties
@@ -34,11 +33,15 @@ class ChannelUser(object):
 
         return self
 
+    async def delete(self) -> None:
+        # delete from mongodb
+        await current_app.dbc.chat_user.delete_one(  # type: ignore
+            {"user_uid": self.user_uid}
+        )
+
 
 class Message(object):
-    def __init__(
-        self, user_uid: Optional[str] = None, body: Optional[str] = None
-    ):
+    def __init__(self, user_uid: Optional[str] = None, body: Optional[str] = None):
         self.uid: str = ""
         self.user_uid = user_uid
         self.user: Optional["User"] = None  # User object
@@ -56,7 +59,7 @@ class Message(object):
         del self.user
 
         # store on mongodb
-        db_message = await current_app.dbc.message.insert_one(self.__dict__)
+        db_message = await current_app.dbc.message.insert_one(self.__dict__)  # type: ignore
 
         # reload properties
         self.user = await User().get_user(user_uid=self.user_uid)
@@ -70,14 +73,14 @@ class Message(object):
         cursor_id = 0
         chat_messages = []
 
-        chat_count = await current_app.dbc.message.count_documents({})
+        chat_count = await current_app.dbc.message.count_documents({})  # type: ignore
 
         if chat_count < number_of_messages:
             skip = 0
         else:
             skip = chat_count - number_of_messages
 
-        async for db_message in current_app.dbc.message.find({}).skip(skip):
+        async for db_message in current_app.dbc.message.find({}).skip(skip):  # type: ignore
             message = await Message.dict_to_class(db_message)
             chat_messages.append(message)
             cursor_id = message.timestamp
@@ -88,7 +91,7 @@ class Message(object):
     async def get_first_message_after_cursor(
         cls, cursor_id: int
     ) -> Optional["Message"]:
-        db_message = await current_app.dbc.message.find_one(
+        db_message = await current_app.dbc.message.find_one(  # type: ignore
             {"timestamp": {"$gt": cursor_id}}
         )
         if db_message:
@@ -107,7 +110,8 @@ class Message(object):
         return message
 
     def to_dict(self) -> dict:
+        message_dict: dict = self.__dict__
         if self.user:
             # convert user to dict
-            self.user = self.user.__dict__
-            return self.__dict__
+            message_dict["user"] = self.user.__dict__
+        return message_dict

@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.domain +
       ":" +
       location.port +
-      "/ws?cursor_id=" +
+      "/message-ws?cursor_id=" +
       cursorId
   );
 
