@@ -33,6 +33,7 @@ A Quart based chat
   - ` winget install "MongoDB Server"`
   - Create a directory called `\data\db` with `md "\data\db"`
 - Run mongodb with `C:\"Program Files"\MongoDB\Server\5.0\bin\mongod.exe --dbpath="c:\data\db"` (note the double quotes around "Program Files")
+- To install the MongoDB Shell, do `winget install MongoDB.Shell`, and then run using `mongosh`
 - Copy `.quartenv.bak` to `.quartenv`
   - Set the mongodb host on `.quartenv` to `localhost`
   - Set the local full paths for upload and images folder

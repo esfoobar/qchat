@@ -7,7 +7,9 @@ from settings import IMAGES_URL
 
 
 class User(object):
-    def __init__(self, username: Optional[str] = None, password: Optional[str] = None):
+    def __init__(
+        self, username: Optional[str] = None, password: Optional[str] = None
+    ):
         self.uid = ""
         self.username = username
         self.password = password
@@ -25,9 +27,9 @@ class User(object):
             original_user = await current_app.dbc.user.find_one(  # type: ignore
                 {"uid": self.uid}
             )
-            if not original_user or original_user["password"] != pbkdf2_sha256.hash(
-                self.password
-            ):
+            if not original_user or original_user[
+                "password"
+            ] != pbkdf2_sha256.hash(self.password):
                 self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
@@ -36,12 +38,14 @@ class User(object):
         # if brand new user
         if not original_user:
             # store on mongodb
-            db_user = await current_app.dbc.user.insert_one(self.__dict__)
+            db_user = await current_app.dbc.user.insert_one(  # type: ignore
+                self.__dict__
+            )  # typing: ignoe
 
         # else it's a user update
         else:
             # update user
-            db_user = await current_app.dbc.user.update_one(
+            db_user = await current_app.dbc.user.update_one(  # type: ignore
                 {"uid": self.uid}, {"$set": self.__dict__}
             )
 

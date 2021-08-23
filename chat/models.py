@@ -10,11 +10,11 @@ from user.models import User
 class ChannelUser(object):
     def __init__(
         self,
-        name: Optional[str] = "#lobby",
+        channel_name: Optional[str] = "#lobby",
         user_uid: Optional[str] = None,
         status: Optional[int] = None,
     ):
-        self.name = name
+        self.channel_name = channel_name
         self.user_uid = user_uid
         self.user: Optional["User"] = None  # User object
         self.status = status
@@ -39,9 +39,20 @@ class ChannelUser(object):
             {"user_uid": self.user_uid}
         )
 
+    @classmethod
+    async def get_channel_users(cls) -> list:
+        channel_users = []
+        async for db_channel_user in current_app.dbc.chat_user.find({}):  # type: ignore
+            user = await User().get_user(user_uid=db_channel_user["user_uid"])
+            channel_users.append(user.__dict__)
+        sorted_list = sorted(channel_users, key=lambda k: k["username"])
+        return sorted_list
+
 
 class Message(object):
-    def __init__(self, user_uid: Optional[str] = None, body: Optional[str] = None):
+    def __init__(
+        self, user_uid: Optional[str] = None, body: Optional[str] = None
+    ):
         self.uid: str = ""
         self.user_uid = user_uid
         self.user: Optional["User"] = None  # User object

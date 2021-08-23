@@ -65,7 +65,7 @@ async def message_ws():
 
 async def channel_updates(dbc):
     while True:
-        channel_users = ["@esfoobar"]
+        channel_users = await ChannelUser().get_channel_users()
         if channel_users:
             await websocket.send(json.dumps({"users": channel_users}))
         await asyncio.sleep(10)
