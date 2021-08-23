@@ -56,6 +56,30 @@
   </div>
 
   <div id="side-bar">
+    <div id="channel-users">
+      {% for channel_user in channel_users %}
+      <div class="user-object"> 
+        <div class="channel-user-profile">
+          <a href="/user/{{ channel_user.username }}">
+            <img
+              class="img-thumbnail img-circle"
+              src="{{ channel_user.images.image_url_sm }}"
+              width="50"
+              height="50"
+              alt="{{ channel_user.username }}"
+            />
+            </a>
+            <div class="channel-user-body"> 
+              <div class="channel-user-body-username">
+                <a href="/user/{{ channel_user.username }}">
+                  @{{ channel_user.username }}
+                </a>
+              </div>
+            </div>            
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   </div>
     
  </div>

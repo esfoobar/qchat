@@ -24,8 +24,13 @@ async def index() -> str:
         number_of_messages
     )
 
+    channel_users = await ChannelUser().get_channel_users()
+
     return await render_template(
-        "chat/index.html", chat_messages=chat_messages, cursor_id=cursor_id
+        "chat/index.html",
+        chat_messages=chat_messages,
+        channel_users=channel_users,
+        cursor_id=cursor_id,
     )
 
 

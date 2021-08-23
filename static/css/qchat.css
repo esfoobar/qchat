@@ -57,11 +57,13 @@ body {
   width: 600px;
 }
 
-.message-user-profile {
+.message-user-profile,
+.channel-user-profile {
   float: left;
 }
 
-.message-object {
+.message-object,
+.user-object {
   height: 60px;
   padding: 5px;
 }
@@ -71,6 +73,16 @@ body {
   display: inline-block;
 }
 
-.message-body-username {
+.channel-user-body {
+  padding-left: 0px;
+  display: inline-block;
+}
+
+.message-body-username,
+.channel-user-username {
   font-weight: bold;
+}
+
+#channel-users {
+  padding: 10px 5px;
 }
