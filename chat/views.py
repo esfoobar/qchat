@@ -73,7 +73,7 @@ async def channel_updates(dbc):
         channel_users = await ChannelUser().get_channel_users()
         if channel_users:
             await websocket.send(json.dumps({"users": channel_users}))
-        await asyncio.sleep(10)
+        await asyncio.sleep(3)
 
 
 @chat_app.websocket("/channel-ws")
