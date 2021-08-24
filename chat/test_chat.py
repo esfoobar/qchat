@@ -39,6 +39,4 @@ async def test_chat_send_message(
         data = "Hello World!"
         await test_websocket.send(data)
         result = await test_websocket.receive()
-        print(result)
         assert data in str(result)
-        pass
