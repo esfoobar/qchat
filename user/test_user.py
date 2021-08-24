@@ -4,7 +4,7 @@ from quart import current_app
 from user.models import *
 
 
-def user_dict():
+def user_dict() -> dict:
     return dict(username="testuser", password="test123")
 
 
