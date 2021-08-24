@@ -10,7 +10,7 @@ async def test_chat_page(
     create_test_client,
 ):
     # register user
-    response = await create_test_client.post(
+    await create_test_client.post(
         "/register", form=user_dict(), follow_redirects=True
     )
 
@@ -26,15 +26,19 @@ async def test_chat_page(
 async def test_chat_send_message(
     create_test_client,
 ):
-    async with create_test_client.websocket("/message-ws") as test_websocket:
-        # login the user
-        response = await create_test_client.post(
-            "/login", form=user_dict(), follow_redirects=True
-        )
-        body = await response.get_data()
+    # login the user
+    await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
 
+    # send a chat message
+    async with create_test_client.websocket(
+        "/message-ws?cursor_id=0"  # id=0 because it's the first ever message
+    ) as test_websocket:
         # send data
         data = "Hello World!"
         await test_websocket.send(data)
         result = await test_websocket.receive()
+        print(result)
+        assert data in str(result)
         pass
