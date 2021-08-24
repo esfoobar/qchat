@@ -80,6 +80,25 @@ async def test_succesful_login(create_test_client):
 
 
 @pytest.mark.asyncio
+async def test_login_logout_login(create_test_client):
+    # loging
+    response = await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
+    body = await response.get_data()
+
+    # logout
+    response = await create_test_client.get("/logout", follow_redirects=True)
+
+    # login again
+    response = await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
+    body = await response.get_data()
+    assert f"@{user_dict()['username']}" in str(body)
+
+
+@pytest.mark.asyncio
 async def test_user_not_found_login(create_test_client):
     # no fields
     response = await create_test_client.post(
@@ -149,9 +168,7 @@ async def test_profile_edit(create_test_client):
     assert "Profile edited" in str(body)
 
     # logout
-    response = await create_test_client.get(
-        "/logout", form=user_dict(), follow_redirects=True
-    )
+    response = await create_test_client.get("/logout", follow_redirects=True)
     body = await response.get_data()
     assert "Login" in str(body)
 

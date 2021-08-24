@@ -23,13 +23,11 @@ class User(object):
             self.uid = str(uuid.uuid4())
             self.password = pbkdf2_sha256.hash(self.password)
         else:
-            # check if this is a new password or password update
+            # check if this is a new user to set his password or if it's a password update
             original_user = await current_app.dbc.user.find_one(  # type: ignore
                 {"uid": self.uid}
             )
-            if not original_user or original_user[
-                "password"
-            ] != pbkdf2_sha256.hash(self.password):
+            if not original_user or original_user["password"] != self.password:
                 self.password = pbkdf2_sha256.hash(self.password)
 
         # remove fields not used in collection
