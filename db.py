@@ -1,8 +1,8 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from quart import current_app
 
 
-async def db_connection():
+async def db_connection() -> "AsyncIOMotorDatabase":
     mongodb_db = current_app.config["MONGODB_DB"]
     mongodb_host = current_app.config["MONGODB_HOST"]
     mongodb_port = int(current_app.config["MONGODB_PORT"])

@@ -12,7 +12,6 @@
       "env": {
         "QUART_APP": "manage.py",
         "QUART_ENV": "development",
-        "QUART_DEBUG": "0"
       },
       "args": ["run"],
       "jinja": true

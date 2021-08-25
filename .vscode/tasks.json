@@ -1,0 +1,26 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run Black Formatter",
+        "type": "shell",
+        "command": "black",
+        "args": ["."]
+      },
+      {
+        "label": "Run MongoDB Windows",
+        "type": "shell",
+        "command": "C:\\Program Files\\MongoDB\\Server\\5.0\\bin\\mongod.exe",
+        "args": ["--dbpath=C:\\data\\db"]
+      },
+      {
+        "label": "Run MongoDB Mac",
+        "type": "shell",
+        "command": "mongod",
+        "args": ["--config", "/usr/local/etc/mongod.conf"]
+      }        
+    ]
+  }
+  

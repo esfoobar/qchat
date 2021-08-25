@@ -4,18 +4,22 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-mypy = "==0.720"
+mypy = "*"
 pylint = "*"
+black = "*"
 
 [packages]
-quart = "==0.14.1"
+quart = "==0.15.1"
 python-dotenv = "==0.10.1"
 motor = "==2.3.1"
 pytest = "==6.2.1"
-pytest-asyncio = "==0.14.0"
-passlib = "==1.7.1"
+pytest-asyncio = "==0.15.1"
+passlib = "==1.7.4"
 wand = "==0.6.2"
 arrow = "==0.16.0"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true

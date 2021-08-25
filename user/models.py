@@ -1,34 +1,91 @@
 from quart import current_app
-from typing import Union
+from typing import Optional
+import uuid
+from passlib.hash import pbkdf2_sha256
 
 from settings import IMAGES_URL
 
 
-class User:
-    def __init__(self, username: str = None, password: str = None):
+class User(object):
+    def __init__(
+        self, username: Optional[str] = None, password: Optional[str] = None
+    ):
         self.uid = ""
         self.username = username
         self.password = password
+        self.image = ""
         self.images: dict = {}
 
-    @classmethod
-    async def get_user_by_username(cls, username: str):
-        user_document = await current_app.dbc.user.find_one({"username": username})
+    async def save(self) -> "User":
+        original_user = None
+
+        if self.uid == "":
+            self.uid = str(uuid.uuid4())
+            self.password = pbkdf2_sha256.hash(self.password)
+        else:
+            # check if this is a new user to set his password or if it's a password update
+            original_user = await current_app.dbc.user.find_one(  # type: ignore
+                {"uid": self.uid}
+            )
+            if not original_user or original_user["password"] != self.password:
+                self.password = pbkdf2_sha256.hash(self.password)
+
+        # remove fields not used in collection
+        del self.images
+
+        # if brand new user
+        if not original_user:
+            # store on mongodb
+            db_user = await current_app.dbc.user.insert_one(  # type: ignore
+                self.__dict__
+            )  # typing: ignoe
+
+        # else it's a user update
+        else:
+            # update user
+            db_user = await current_app.dbc.user.update_one(  # type: ignore
+                {"uid": self.uid}, {"$set": self.__dict__}
+            )
+
+        return self
+
+    @staticmethod
+    async def login(username: str, password: str) -> Optional["User"]:
+        user = await User().get_user(username=username)
+        if not user:
+            return None
+        # check the password
+        elif not pbkdf2_sha256.verify(password, user.password):
+            return None
+        return user
+
+    async def get_user(
+        self, user_uid: Optional[str] = None, username: Optional[str] = None
+    ) -> Optional["User"]:
+        if user_uid:
+            user_document = await current_app.dbc.user.find_one(  # type: ignore
+                {"uid": user_uid}
+            )
+        else:
+            user_document = await current_app.dbc.user.find_one(  # type: ignore
+                {"username": username}
+            )
         if not user_document:
             return None
         else:
-            cls.uid = str(user_document["uid"])
-            cls.username = user_document["username"]
-            cls.password = user_document["password"]
-            cls.images = {}
+            self.uid = str(user_document["uid"])
+            self.username = user_document["username"]
+            self.password = user_document["password"]
+            self.image = user_document["image"]
+            self.images = {}
 
-            image_dict = cls._image_url_from_image_ts(cls.uid, user_document["image"])
-            cls.images["image_url_raw"] = image_dict["image_url_raw"]
-            cls.images["image_url_xlg"] = image_dict["image_url_xlg"]
-            cls.images["image_url_lg"] = image_dict["image_url_lg"]
-            cls.images["image_url_sm"] = image_dict["image_url_sm"]
+            image_dict = User._image_url_from_image_ts(self.uid, self.image)
+            self.images["image_url_raw"] = image_dict["image_url_raw"]
+            self.images["image_url_xlg"] = image_dict["image_url_xlg"]
+            self.images["image_url_lg"] = image_dict["image_url_lg"]
+            self.images["image_url_sm"] = image_dict["image_url_sm"]
 
-            return cls
+            return self
 
     @staticmethod
     def _image_url_from_image_ts(user_uid: str, user_image: str) -> dict:
