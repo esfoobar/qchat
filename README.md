@@ -29,6 +29,7 @@ A Quart based chat
 - Install pipenv `pip install pipenv`
 - Install dependencies `pipenv install`
   - You will need to install ImageMagick dependency via `winget install imagemagick`
+  - For WSL you need to pass the Python executable, as the Windows one gets precedence: `pipenv install --python=/usr/bin/python3`
 - [Install mongodb](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/)
   - ` winget install "MongoDB Server"`
   - Create a directory called `\data\db` with `md "\data\db"`
